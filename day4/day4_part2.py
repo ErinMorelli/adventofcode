@@ -40,7 +40,6 @@ valid values. Continue to treat cid as optional. In your batch file,
 how many passports are valid?
 """
 import re
-from pprint import pprint
 
 input_file = 'input.txt'
 
@@ -63,7 +62,7 @@ validation_rules = {
     'hgt': validate_height,
     'hcl': lambda x: re.match(r'#[0-9a-f]{6}', x),
     'ecl': lambda x: x in ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'],
-    'pid': lambda x: re.match(r'[0-9]{9}', x),
+    'pid': lambda x: re.match(r'\d{9}', x) and len(x) == 9
     # 'cid'
 }
 
@@ -71,7 +70,6 @@ with open(input_file, 'r') as fh:
     raw_data = fh.read()
 
 passports = re.compile(r'^$', re.M).split(raw_data.strip())
-# pprint(passports)
 
 
 def is_valid(fields):
@@ -80,15 +78,12 @@ def is_valid(fields):
         if req not in fields.keys():
             broken[req] = 'missing'
             continue
-            # return False
         if not validate(fields[req]):
             broken[req] = 'invalid'
             continue
-            # return False
     return broken
 
 
-all = []
 valid = []
 
 for p in passports:
@@ -103,27 +98,8 @@ for p in passports:
         pfields[key] = value
 
     broken = is_valid(pfields)
-    all.append(pfields)
 
-    if len(broken) == 0:
-        # pprint(pfields)
-        # print('\n')
+    if len(broken.keys()) == 0:
         valid.append(pfields)
 
-summary = {}
-
-for req in validation_rules.keys():
-    req_list = []
-
-    for v in all:
-        if req in v.keys():
-            req_list.append(v[req])
-        else:
-            req_list.append('')
-
-    summary[req] = sorted(req_list)
-
-pprint(summary['byr'])
-
-print(len(passports))
 print(f'valid: {len(valid)}')

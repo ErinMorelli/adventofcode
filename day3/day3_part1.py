@@ -32,11 +32,36 @@ encounter 7 trees.
 Starting at the top-left corner of your map and following a slope of right 3
 and down 1, how many trees would you encounter?
 """
-from pprint import pprint
-
 input_file = 'input.txt'
+tree_map = []
 
 with open(input_file, 'r') as fh:
-    lines = fh.readlines()
+    for line in fh:
+        tree_map.append(line.strip())
 
-pprint(lines)
+tree_len = len(tree_map) - 1
+
+col = 3
+row = 1
+trees = []
+
+while True:
+    sq = tree_map[row][col]
+
+    if sq == '#':
+        trees.append(sq)
+
+    prev_col = col
+    col = col + 3
+    row = row + 1
+
+    if row > tree_len:
+        break
+
+    row_len = len(tree_map[row]) - 1
+
+    if col > row_len:
+        diff = row_len - prev_col
+        col = (3 - diff) - 1
+
+print(f'trees: {len(trees)}')

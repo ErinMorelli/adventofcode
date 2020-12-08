@@ -106,4 +106,5 @@ for line_no in range(len(code)):
                 idx += 1
 
     if complete:
+        print(f'acc: {acc}')
         break

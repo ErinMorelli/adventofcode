@@ -86,17 +86,10 @@ while True:
     done.add(idx)
 
     if cmd == 'jmp':
-        if op == '+':
-            idx += pos
-        else:
-            idx -= pos
+        idx = idx + pos if op == '+' else idx - pos
+        continue
 
     elif cmd == 'acc':
-        if op == '+':
-            acc += pos
-        else:
-            acc -= pos
-        idx += 1
+        acc = acc + pos if op == '+' else acc - pos
 
-    else:
-        idx += 1
+    idx += 1

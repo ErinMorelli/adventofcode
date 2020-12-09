@@ -43,10 +43,6 @@ for idx, sid in enumerate(seat_ids):
     if idx == 0:
         continue
 
-    if idx+1 == len(seat_ids):
+    if sid+1 != seat_ids[idx+1]:
+        print(f'seat ID: {sid + 1}')
         break
-
-    if sid+1 == seat_ids[idx+1]:
-        continue
-
-    print(f'seat ID: {sid+1}')

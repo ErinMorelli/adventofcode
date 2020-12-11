@@ -48,17 +48,14 @@ data.append(device_rating)
 def calc_run(run):
     run_length = len(run)
     paths = 1
-    i = 1
-    while i <= run_length:
+    for i in range(1, run_length+1):
         paths += run_length - i
-        i += 1
     return paths
 
 
 diffs = [data[i+1] - data[i] for i in range(len(data)-1)]
-sdiff = ''.join([str(i) for i in diffs])
-runs = sdiff.split('3')
+string_diffs = ''.join([str(i) for i in diffs])
+runs = string_diffs.split('3')
 
 result = prod([calc_run(r) for r in runs])
-
 print(f'arrangements: {result}')

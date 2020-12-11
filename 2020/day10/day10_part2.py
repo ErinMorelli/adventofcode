@@ -28,7 +28,7 @@ Surely, there must be an efficient way to count the arrangements.
 What is the total number of distinct ways you can arrange the adapters to
 connect the charging outlet to your device?
 """
-from pprint import pprint
+from math import prod
 
 input_file = 'input.txt'
 
@@ -44,35 +44,21 @@ device_rating = highest_rating + jolt_diff
 data = [0] + data
 data.append(device_rating)
 
-node_count = 0
+
+def calc_run(run):
+    run_length = len(run)
+    paths = 1
+    i = 1
+    while i <= run_length:
+        paths += run_length - i
+        i += 1
+    return paths
 
 
-class AdapterTree:
-    def __init__(self, val):
-        self.val = val
-        self.nodes = []
+diffs = [data[i+1] - data[i] for i in range(len(data)-1)]
+sdiff = ''.join([str(i) for i in diffs])
+runs = sdiff.split('3')
 
-    def add_node(self, val):
-        self.nodes.append(AdapterTree(val))
+result = prod([calc_run(r) for r in runs])
 
-    def __repr__(self):
-        return f'<AdapterTree val={self.val}, nodes={len(self.nodes)}>'
-
-
-def set_nodes(parent, adapter):
-    if adapter < device_rating:
-        for diff in range(1, jolt_diff+1):
-            new_adapter = adapter + diff
-            if new_adapter in data:
-                parent.add_node(new_adapter)
-        for node in parent.nodes:
-            set_nodes(node, node.val)
-    elif adapter == device_rating:
-        global node_count
-        node_count += 1
-
-
-tree = AdapterTree(0)
-set_nodes(tree, 0)
-print(tree)
-print(node_count)
+print(f'arrangements: {result}')

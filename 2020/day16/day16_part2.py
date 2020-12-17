@@ -63,10 +63,9 @@ nearby_tickets = [[int(i) for i in t.split(',')] for t in raw_nearby_tickets]
 
 
 def validate_field(val, ranges):
-    range1 = range(ranges[0][0], ranges[0][1] + 1)
-    range2 = range(ranges[1][0], ranges[1][1] + 1)
-
-    return val in range1 or value in range2
+    range_check1 = ranges[0][0] <= val <= ranges[0][1]
+    range_check2 = ranges[1][0] <= val <= ranges[1][1]
+    return range_check1 or range_check2
 
 
 valid_tickets = [your_ticket]
@@ -86,8 +85,8 @@ for ticket in nearby_tickets:
         valid_tickets.append(ticket)
 
 
-possible_fields = [{f: True for f in fields.keys()}
-                   for _ in range(len(your_ticket))]
+possible_fields = [
+    {f: True for f in fields.keys()} for _ in range(len(your_ticket))]
 
 for ticket in valid_tickets:
     for idx, value in enumerate(ticket):
@@ -105,7 +104,7 @@ for idx, pf in enumerate(possible_fields):
         if valid:
             possible_fields_by_index[idx].add(fname)
 
-matched_fields_by_index = {f: None for f in fields.keys()}
+matched_by_index = {f: None for f in fields.keys()}
 
 
 def match_fields(to_match, matched):
@@ -132,8 +131,7 @@ def match_fields(to_match, matched):
     return matched
 
 
-fields_by_index = match_fields(possible_fields_by_index,
-                               matched_fields_by_index)
+fields_by_index = match_fields(possible_fields_by_index, matched_by_index)
 
 ticket_values = {}
 

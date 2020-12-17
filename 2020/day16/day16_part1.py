@@ -103,10 +103,10 @@ for ticket in nearby_tickets:
         match = False
 
         for field in fields.values():
-            range1 = range(field[0][0], field[0][1]+1)
-            range2 = range(field[1][0], field[1][1]+1)
+            range_check1 = field[0][0] <= value <= field[0][1]
+            range_check2 = field[1][0] <= value <= field[1][1]
 
-            if value in range1 or value in range2:
+            if range_check1 or range_check2:
                 match = True
                 break
 

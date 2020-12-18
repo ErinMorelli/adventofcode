@@ -125,7 +125,7 @@ def find_4d_neighbors(x, y, z, w, spaces):
     return neighbors
 
 
-def apply_rules(spaces, debug=False):
+def apply_rules(spaces):
     active_count = 0
 
     new_row = [inactive for _ in range(len(spaces[0][0][0])+2)]
@@ -157,11 +157,6 @@ def apply_rules(spaces, debug=False):
 
                     if new_state == active:
                         active_count += 1
-
-                    if debug:
-                        print(f'{(x, y, z, w)} "{col}" --> "{new_state}" '
-                              f'neighbors: {len(neighbors)} '
-                              f'({active_neighbors})')
 
                     new_cols.append(new_state)
 

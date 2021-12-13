@@ -51,27 +51,14 @@ example, this is `9 * 14 * 9 = 1134`.
 What do you get if you multiply together the sizes of the three largest
 basins?
 """
-input_file = 'input.txt'
+# input_file = 'input.txt'
+input_file = 'input2.txt'
 
 with open(input_file, 'r') as fh:
     raw_data = fh.read().splitlines()
 
 from pprint import pprint
 
-data = [[int(y, 10) for y in x] for x in raw_data]
+data = [x.split('9') for x in raw_data]
 
-lows = []
-
-for ri, row in enumerate(data):
-    for ci, col in enumerate(row):
-        n = data[ri-1][ci] if ri-1 >= 0 else 10
-        s = data[ri+1][ci] if ri+1 < len(data) else 10
-        e = row[ci+1] if ci+1 < len(row) else 10
-        w = row[ci-1] if ci-1 >= 0 else 10
-
-        if col < n and col < s and col < e and col < w:
-            lows.append(col + 1)
-
-result = sum(lows)
-
-print(f'Result: {result}')
+pprint(data)

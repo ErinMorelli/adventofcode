@@ -37,9 +37,9 @@ data = raw_data.splitlines()
 
 
 class File:
-    def __init__(self, filename, filesize):
-        self.name = filename
-        self.size = filesize
+    def __init__(self, filename: str, filesize: int):
+        self.name: str = filename
+        self.size: int = filesize
 
     def __repr__(self):
         return f'<File name="{self.name}" size={self.size}>'
@@ -53,17 +53,22 @@ class Dir:
         self.files = []
         self.size = 0
 
+    def update_size(self, filesize):
+        self.size += filesize
+        if self.parent:
+            self.parent.update_size(filesize)
+
     def add_file(self, file):
         self.files.append(file)
-        self.size += file.size
+        self.update_size(file.size)
 
     def __repr__(self):
-        return f'<Dir name="{self.name}" size={self.size} children={len(self.children)} files={len(self.files)}>'
+        return f'<Dir name="{self.name}" size={self.size}' \
+               f' children={len(self.children)} files={len(self.files)}>'
 
 
 root = Dir('/')
 current = root
-small_dirs = []
 
 for row in data:
     # COMMAND
@@ -83,42 +88,27 @@ for row in data:
     # DIR
     elif row.startswith('dir'):
         _, name = row.split(' ')
-        new_dir = Dir(name, current)
-        current.children.append(new_dir)
+        current.children.append(Dir(name, current))
     # FILE
     else:
         size, name = row.split(' ')
-        new_file = File(name, int(size))
-        current.add_file(new_file)
+        current.add_file(File(name, int(size)))
 
 
 total_size = 70000000
 needed_space = 30000000
 
-
-def get_dir_size(dir):
-    if not dir.children:
-        result = dir.size
-    else:
-        result = dir.size + sum(get_dir_size(x) for x in dir.children)
-    return result
-
-
-root_size = get_dir_size(root)
-current_free = total_size - root_size
+current_free = total_size - root.size
 needed = needed_space - current_free
 
 to_delete = []
 
 
-def get_dir_to_delete(dir):
-    if not dir.children:
-        result = dir.size
-    else:
-        result = dir.size + sum(get_dir_to_delete(x) for x in dir.children)
-    if result >= needed:
-        to_delete.append(result)
-    return result
+def get_dir_to_delete(d):
+    if d.size >= needed:
+        to_delete.append(d.size)
+    for c in d.children:
+        get_dir_to_delete(c)
 
 
 get_dir_to_delete(root)

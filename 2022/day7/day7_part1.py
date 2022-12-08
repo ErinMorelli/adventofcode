@@ -115,9 +115,9 @@ data = raw_data.splitlines()
 
 
 class File:
-    def __init__(self, filename, filesize):
-        self.name = filename
-        self.size = filesize
+    def __init__(self, filename: str, filesize: int):
+        self.name: str = filename
+        self.size: int = filesize
 
     def __repr__(self):
         return f'<File name="{self.name}" size={self.size}>'
@@ -131,17 +131,22 @@ class Dir:
         self.files = []
         self.size = 0
 
+    def update_size(self, filesize):
+        self.size += filesize
+        if self.parent:
+            self.parent.update_size(filesize)
+
     def add_file(self, file):
         self.files.append(file)
-        self.size += file.size
+        self.update_size(file.size)
 
     def __repr__(self):
-        return f'<Dir name="{self.name}" size={self.size} children={len(self.children)} files={len(self.files)}>'
+        return f'<Dir name="{self.name}" size={self.size}' \
+               f' children={len(self.children)} files={len(self.files)}>'
 
 
 root = Dir('/')
 current = root
-small_dirs = []
 
 for row in data:
     # COMMAND
@@ -161,28 +166,22 @@ for row in data:
     # DIR
     elif row.startswith('dir'):
         _, name = row.split(' ')
-        new_dir = Dir(name, current)
-        current.children.append(new_dir)
+        current.children.append(Dir(name, current))
     # FILE
     else:
         size, name = row.split(' ')
-        new_file = File(name, int(size))
-        current.add_file(new_file)
+        current.add_file(File(name, int(size)))
 
 
 small_dirs = []
 
 
-def get_dir_size(dir):
-    if not dir.children:
-        result = dir.size
-    else:
-        result = dir.size + sum(get_dir_size(x) for x in dir.children)
-    if result <= 100000:
-        small_dirs.append(result)
-    return result
+def check_dir_size(d):
+    if d.size <= 100000:
+        small_dirs.append(d.size)
+    for c in d.children:
+        check_dir_size(c)
 
 
-get_dir_size(root)
-
+check_dir_size(root)
 print(sum(small_dirs))

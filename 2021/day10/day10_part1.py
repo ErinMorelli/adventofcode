@@ -78,16 +78,10 @@ total syntax error score for this file is `6+57+1197+25137 = 26397` points!
 Find the first illegal character in each corrupted line of the navigation
 subsystem. What is the total syntax error score for those errors?
 """
-# input_file = 'input.txt'
-from collections import defaultdict
-
-input_file = 'input2.txt'
+input_file = 'input.txt'
 
 with open(input_file, 'r') as fh:
     raw_data = fh.read().splitlines()
-
-
-from pprint import pprint
 
 scores = {
     ')': 3,
@@ -97,21 +91,27 @@ scores = {
 }
 
 brackets = {
-    ')': '(',
-    ']': '[',
-    '}': '{',
-    '>': '<'
+    '(': ')',
+    '[': ']',
+    '{': '}',
+    '<': '>'
 }
 
+points = 0
+
+
 for line in raw_data:
-    chars = defaultdict(lambda: 0)
+    chunks = []
 
     for char in line:
-        if char in brackets:
-            chars[char] -= 1
-        else:
-            chars[brackets[char]] -= 1
+        if char in brackets.keys():
+            chunks.append(char)
+            continue
 
-    print(line)
-    pprint(chars)
-    print('')
+        if brackets[chunks[-1]] != char:
+            points += scores[char]
+            break
+        else:
+            chunks.pop()
+
+print(points)

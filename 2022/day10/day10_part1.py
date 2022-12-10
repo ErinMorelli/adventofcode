@@ -233,35 +233,35 @@ input_file = 'input.txt'
 with open(input_file, 'r') as fh:
     data = fh.read().splitlines()
 
-X = 1
-cycle = 0
-values = []
 
-cycles = [20, 60, 100, 140, 180, 220]
-signals = []
+class Device:
+    X = 1
+    cycle = 0
+    values = []
+    cycles = [20, 60, 100, 140, 180, 220]
+    signals = []
+
+    def do_cycle(self):
+        self.cycle += 1
+        if self.cycle in self.cycles:
+            self.signals.append(self.X * self.cycle)
+
+    def do_op(self, op):
+        if op == 'noop':
+            self.do_cycle()
+        else:
+            _, inc = op.split(' ')
+
+            self.do_cycle()
+            self.do_cycle()
+
+            self.values.append(int(inc))
+            self.X = sum(self.values) + 1
+
+    def run(self, dat):
+        for op in dat:
+            self.do_op(op)
+        return sum(self.signals)
 
 
-def check_cycle():
-    if cycle in cycles:
-        signal = X * cycle
-        signals.append(signal)
-
-
-for op in data:
-    if op == 'noop':
-        cycle += 1
-        check_cycle()
-        continue
-
-    _, inc = op.split(' ')
-
-    cycle += 1
-    check_cycle()
-
-    cycle += 1
-    check_cycle()
-
-    values.append(int(inc))
-    X = sum(values) + 1
-
-print(sum(signals))
+print(Device().run(data))

@@ -151,55 +151,58 @@ input_file = 'input.txt'
 with open(input_file, 'r') as fh:
     data = fh.read().splitlines()
 
-WIDTH = 40
-HEIGHT = 6
 
-crt = [[' ' for _ in range(WIDTH)] for _ in range(HEIGHT)]
+class Device:
+    width = 40
+    height = 6
 
-sprite = [0, 1, 2]
-draw = [0, 0]
+    sprite = [0, 1, 2]
+    draw = [0, 0]
 
-X = 1
-cycle = 0
-values = []
+    X = 1
+    cycle = 0
+    values = []
+
+    def __init__(self):
+        self.screen = [['.' for _ in range(self.width)] for _ in range(self.height)]
+
+    def do_cycle(self):
+        self.cycle += 1
+        self.update_screen()
+        self.update_draw()
+
+    def update_screen(self):
+        print('')
+        for y, row in enumerate(self.screen):
+            for x, _ in enumerate(row):
+                cell = [x, y]
+                if x in self.sprite and cell == self.draw:
+                    self.screen[y][x] = '#'
+            print(''.join(row))
+        print('')
+
+    def update_draw(self):
+        if self.cycle % self.width == 0:
+            self.draw = [0, self.draw[1] + 1]
+        else:
+            self.draw = [self.draw[0] + 1, self.draw[1]]
+
+    def do_op(self, op):
+        if op == 'noop':
+            self.do_cycle()
+        else:
+            _, inc = op.split(' ')
+
+            self.do_cycle()
+            self.do_cycle()
+
+            self.values.append(int(inc))
+            self.X = sum(self.values) + 1
+            self.sprite = [self.X - 1, self.X, self.X + 1]
+
+    def run(self, dat):
+        for op in dat:
+            self.do_op(op)
 
 
-def draw_screen():
-    print('')
-    for y, row in enumerate(crt):
-        for x, _ in enumerate(row):
-            cell = [x, y]
-            if x in sprite and cell == draw:
-                crt[y][x] = '#'
-        print(''.join(row))
-    print('')
-
-
-def get_draw():
-    if cycle % WIDTH == 0:
-        new_draw = [0, draw[1] + 1]
-    else:
-        new_draw = [draw[0] + 1, draw[1]]
-    return new_draw
-
-
-for op in data:
-    if op == 'noop':
-        cycle += 1
-        draw_screen()
-        draw = get_draw()
-        continue
-
-    _, inc = op.split(' ')
-
-    cycle += 1
-    draw_screen()
-    draw = get_draw()
-
-    cycle += 1
-    draw_screen()
-    draw = get_draw()
-
-    values.append(int(inc))
-    X = sum(values) + 1
-    sprite = [X-1, X, X+1]
+Device().run(data)

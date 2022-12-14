@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 """
-???
+--- Part Two ---
+
+Finish folding the transparent paper according to the instructions. The manual
+says the code is always eight capital letters.
+
+What code do you use to activate the infrared thermal imaging camera system?
 """
 input_file = 'input.txt'
-# input_file = 'sample.txt'
 
 with open(input_file, 'r') as fh:
     raw_data = fh.read().split('\n\n')

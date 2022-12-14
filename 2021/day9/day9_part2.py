@@ -52,7 +52,7 @@ What do you get if you multiply together the sizes of the three largest
 basins?
 """
 # input_file = 'input.txt'
-input_file = 'input2.txt'
+input_file = 'sample.txt'
 
 with open(input_file, 'r') as fh:
     raw_data = fh.read().splitlines()

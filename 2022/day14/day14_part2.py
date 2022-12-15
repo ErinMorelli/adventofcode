@@ -72,7 +72,7 @@ for r in data:
     rocks.append(rock)
 
 floor = max_y + 2
-cave = [['.' for _ in range(max_x*max_x)] for _ in range(floor+1)]
+cave = [['.' for _ in range(max_x*2)] for _ in range(floor+1)]
 
 for rock in rocks:
     for i in range(len(rock))[1:]:

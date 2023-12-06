@@ -30,35 +30,87 @@ line of the almanac. What is the lowest location number that corresponds to
 any of the initial seed numbers?
 """
 input_file = 'input.txt'
-# input_file = 'sample.txt'
 
 with open(input_file, 'r') as fh:
     raw_data = fh.read().split('\n\n')
 
 all_seeds = [int(s) for s in raw_data[0].strip().split(':')[1].strip().split(' ')]
 seed_pairs = [all_seeds[i:i+2] for i in range(0, len(all_seeds), 2)]
-min_location = None
 
 
-def get_location(seed):
-    next_value = seed
+def do_conversion(maps, start, length):
+    end = start + length - 1
+    new_ranges = []
+
+    for entry in maps.strip().split('\n')[1:]:
+        raw_ranges = [int(e.strip()) for e in entry.strip().split(' ')]
+
+        [dest_start, source_start, range_length] = raw_ranges
+        source_end = source_start + range_length - 1
+
+        new_start = dest_start + (start - source_start)
+
+        # Full og range in source range
+        #    |----|
+        # |----------|
+        if (
+                (source_start <= start <= source_end) and
+                (source_start <= end <= source_end)
+        ):
+            new_ranges.append((new_start, length))
+            break
+
+        # Part of og range overlaps with the end of source range
+        #         |------|
+        # |----------|
+        elif (
+                (source_start <= start <= source_end) and
+                (source_end < end)
+        ):
+            new_length = source_end - start + 1
+            new_ranges.append((new_start, new_length))
+            if new_length != length:
+                new_ranges.extend(do_conversion(maps, source_end + 1, length - new_length))
+            break
+
+        # Part of og range overlaps with the start of source range
+        # |--------|
+        #       |----------|
+        elif (
+                (source_start > start) and
+                (source_start <= end <= source_end)
+        ):
+            new_length = end - source_start + 1
+            new_ranges.append((dest_start, new_length))
+            if new_length != length:
+                new_ranges.extend(do_conversion(maps, start, length - new_length))
+            break
+
+        # No part of og range overlaps with the source range
+        #                  |------|
+        # |---------|
+
+    return [(start, length)] if not new_ranges else new_ranges
+
+
+final_ranges = []
+
+for og_start, og_length in seed_pairs:
+    ranges = [(og_start, og_length)]
+
     for m in raw_data[1:]:
-        for entry in m.strip().split('\n')[1:]:
-            raw_ranges = [int(e.strip()) for e in entry.strip().split(' ')]
-            length = raw_ranges[2]
+        new_ranges = []
+        for range_start, range_length in ranges:
+            new_ranges.extend(do_conversion(m, range_start, range_length))
+        ranges = new_ranges
 
-            if raw_ranges[1] <= next_value < raw_ranges[1] + length:
-                diff = next_value - raw_ranges[1]
-                next_value = raw_ranges[0] + diff
-                break
-    return next_value
+    final_ranges.extend(ranges)
 
 
-for start, length in seed_pairs:
-    end = start + length
-    for seed in range(start, end+1):
-        loc = get_location(seed)
-        if min_location is None or loc < min_location:
-            min_location = loc
+lowest = None
 
-print(min_location)
+for (s, _) in final_ranges:
+    if lowest is None or s < lowest:
+        lowest = s
+
+print(lowest)

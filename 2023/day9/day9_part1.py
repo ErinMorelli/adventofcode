@@ -109,12 +109,36 @@ together, you get 114.
 Analyze your OASIS report and extrapolate the next value for each history.
 What is the sum of these extrapolated values?
 """
-from pprint import pprint
-
-# input_file = 'input.txt'
-input_file = 'sample.txt'
+input_file = 'input.txt'
 
 with open(input_file, 'r') as fh:
     raw_data = fh.read().splitlines()
 
-pprint(raw_data)
+data = [list(map(int, x.split())) for x in raw_data]
+
+predictions = []
+
+for hist in data:
+    history = [hist[-1]]
+    diffs = hist
+
+    while True:
+        new_diffs = []
+
+        for i, n in enumerate(diffs[:-1]):
+            diff = diffs[i+1] - n
+            new_diffs.append(diff)
+
+        if all(x == 0 for x in new_diffs):
+            break
+
+        history.insert(0, new_diffs[-1])
+        diffs = new_diffs
+
+    val = history[0]
+    for i, h in enumerate(history[1:]):
+        val = val + h
+
+    predictions.append(val)
+
+print(sum(predictions))

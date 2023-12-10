@@ -54,7 +54,30 @@ Starting at AAA, follow the left/right instructions. How many steps are
 required to reach ZZZ?
 
 """
+from re import sub
+
 input_file = 'input.txt'
 
 with open(input_file, 'r') as fh:
     raw_data = fh.read().splitlines()
+
+instructions = raw_data[0]
+
+nodes = {x.split(' = ')[0]: sub(r'[()]', '', x.split(' = ')[1]).split(', ') for x in raw_data[2:]}
+
+start = 'AAA'
+end = 'ZZZ'
+
+current = start
+step = 0
+idx = 0
+
+while current != end:
+    direction = instructions[idx]
+    current = nodes[current][0] if direction == 'L' else nodes[current][1]
+    idx += 1
+    if idx == len(instructions):
+        idx = 0
+    step += 1
+
+print(step)

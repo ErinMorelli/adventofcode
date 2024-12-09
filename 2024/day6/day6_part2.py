@@ -118,15 +118,18 @@ could choose.
 You need to get the guard stuck in a loop by adding a single new obstruction.
 How many different positions could you choose for this obstruction?
 """
+import asyncio
+
 input_file = 'input.txt'
-# input_file = 'sample.txt'
 
 with open(input_file, 'r') as fh:
     raw_data = fh.read().splitlines()
 
+max_y = len(raw_data)
+max_x = len(raw_data[0])
+
 guard = '^'
 obstacle = '#'
-empty = '.'
 
 start_pos = 'up'
 start_x = 0
@@ -146,78 +149,93 @@ def move(x, y, pos):
 
     if pos == 'up':
         new_y = y - 1
+        if new_y < 0:
+            raise IndexError
         if data[new_y][new_x] == obstacle:
             return move(x, y, 'right')
 
     elif pos == 'down':
         new_y = y + 1
+        if new_y >= max_y:
+            raise IndexError
         if data[new_y][new_x] == obstacle:
             return move(x, y, 'left')
 
     elif pos == 'left':
         new_x = x - 1
+        if new_x < 0:
+            raise IndexError
         if data[new_y][new_x] == obstacle:
             return move(x, y, 'up')
 
     elif pos == 'right':
         new_x = x + 1
+        if new_x >= max_x:
+            raise IndexError
         if data[new_y][new_x] == obstacle:
             return move(x, y, 'down')
 
     return new_x, new_y, new_pos
 
 def patrol(x, y, pos):
-    route = []
-    route.append(f'{x},{y},{pos}')
+    route = list()
+    coords = set()
+    route.append((x, y, pos))
 
     while True:
         try:
             x, y, pos = move(x, y, pos)
-            route.append(f'{x},{y},{pos}')
+            if (x, y, pos) in route:
+                break
+            route.append((x, y, pos))
+            coords.add((x, y))
         except IndexError:
             break
 
     return route
 
 seen = patrol(start_x, start_y, start_pos)
+unique_seen = list(set([(s[0], s[1]) for s in seen]))
 
-def patrol_loop(x, y, pos):
-    route = set()
-    route.add(f'{x},{y},{pos}')
-    is_loop = False
+async def run(seen_list, _data):
+    loops = set()
 
-    while True:
-        try:
-            x, y, pos = move(x, y, pos)
-            log = f'{x},{y},{pos}'
+    for idx, spot in enumerate(seen_list):
+        if (spot[0], spot[1]) == (start_x, start_y):
+            continue
 
-            if log in route:
-                is_loop = True
+        temp = _data[spot[1]][spot[0]]
+        _data[spot[1]][spot[0]] = obstacle
+
+        path = list()
+
+        x = start_x
+        y = start_y
+        pos = start_pos
+
+        while True:
+            try:
+                x, y, pos = move(x, y, pos)
+                if (x, y, pos) in path:
+                    loops.add((spot[0], spot[1]))
+                    break
+                path.append((x, y, pos))
+            except IndexError:
                 break
 
-            route.add(f'{x},{y},{pos}')
-        except IndexError:
-            break
+        _data[spot[1]][spot[0]] = temp
 
-    return is_loop
+    return len(loops)
 
-spots = set()
 
-for coord in seen:
-    xs, ys, pos = coord.split(',')
-    x = int(xs)
-    y = int(ys)
+def chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 
-    if (start_x == x and start_y == y) or data[y][x] == obstacle:
-        continue
+seen_chunks = list(chunks(unique_seen, 500))
 
-    temp = data[y][x]
-    data[y][x] = obstacle
+async def main():
+    return await asyncio.gather(*[run(sc, data) for sc in seen_chunks])
 
-    if patrol_loop(start_x, start_y, start_pos):
-        spots.add(f'{x},{y}')
-
-    data[y][x] = temp
-
-# print(spots)
-print(len(spots))
+res = asyncio.run(main())
+print(sum(res))
